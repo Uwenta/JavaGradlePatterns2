@@ -6,7 +6,6 @@ import io.restassured.filter.log.LogDetail;
 import io.restassured.http.ContentType;
 import io.restassured.specification.RequestSpecification;
 import lombok.Value;
-import lombok.val;
 
 import java.util.Locale;
 
@@ -26,21 +25,21 @@ public class DataGenerator {
     }
 
     private static void sendRequest(RegistrationDto user) {
-        // TODO: отправить запрос на указанный в требованиях path, передав в body запроса объект user
-        //  и не забудьте передать подготовленную спецификацию requestSpec.
-        //  Пример реализации метода показан в условии к задаче.
+        given() // "дано"
+                .spec(requestSpec)
+                .body(new RegistrationDto(user.login, user.password, user.status))
+                .when()
+                .post("/api/system/users")
+                .then() //
+                .statusCode(200);
     }
 
     public static String getRandomLogin() {
-        // TODO: добавить логику для объявления переменной login и задания её значения, для генерации
-        //  случайного логина используйте faker
-        return login;
+        return faker.internet().emailAddress();
     }
 
     public static String getRandomPassword() {
-        // TODO: добавить логику для объявления переменной password и задания её значения, для генерации
-        //  случайного пароля используйте faker
-        return password;
+        return faker.internet().password();
     }
 
     public static class Registration {
@@ -48,13 +47,14 @@ public class DataGenerator {
         }
 
         public static RegistrationDto getUser(String status) {
-            // TODO: создать пользователя user используя методы getRandomLogin(), getRandomPassword() и параметр status
-            return user;
+            String login = getRandomLogin();
+            String password = getRandomPassword();
+            return new RegistrationDto(login, password, status);
         }
 
         public static RegistrationDto getRegisteredUser(String status) {
-            // TODO: объявить переменную registeredUser и присвоить ей значение возвращённое getUser(status).
-            // Послать запрос на регистрацию пользователя с помощью вызова sendRequest(registeredUser)
+            RegistrationDto registeredUser = getUser(status);
+            sendRequest(registeredUser);
             return registeredUser;
         }
     }
